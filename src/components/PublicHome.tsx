@@ -5,12 +5,12 @@ import VehicleSlider from './VehicleSlider'
 import AuthModel from './AuthModel'
 
 const PublicHome = () => {
-  const [authOpen, steAuthOpen]=useState(false)
+  const [authOpen, setAuthOpen]=useState(false)
   return (
     <>
-      <HeroSection/>
+      <HeroSection onAuthRequired={()=>setAuthOpen(true)}/>
       <VehicleSlider/>
-      <AuthModel open={authOpen} onClose={()=>steAuthOpen(false)} />
+      <AuthModel open={authOpen} onClose={()=>setAuthOpen(false)} />
     </>
   )
 }

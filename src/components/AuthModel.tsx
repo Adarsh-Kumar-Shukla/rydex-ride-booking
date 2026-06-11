@@ -1,8 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Mail, User, X } from "lucide-react";
+import { Key, Loader, Mail, User, X } from "lucide-react";
 import Image from "next/image";
+import axios from "axios";
+import { IoMdEye } from "react-icons/io";
+import { IoMdEyeOff } from "react-icons/io";
+import { signIn, useSession } from "next-auth/react";
 
 type propType = {
   open: boolean;
@@ -11,6 +15,42 @@ type propType = {
 type stepType = "login" | "signup" | "otp";
 const AuthModel = ({ open, onClose }: propType) => {
   const [step, setStep] = useState<stepType>("login");
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [hidePassword, setHidePassord] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("")
+  const {data}=useSession()
+  console.log(data)
+
+  const handleSignUp = async ()=>{
+    setLoading(true);
+    try {
+      const {data} = await axios.post("/api/auth/register",{
+        name, email, password
+      })
+      console.log(data)
+      setLoading(false)
+    } catch (error:any) {
+      console.log(error)
+      setLoading(false)
+      setErr(error.response.data.message ?? "something went wrong")
+    }
+  }
+
+  const handleLogin = async () => {
+    setLoading(true)
+    const response = await signIn("credentials", {
+      email, password, redirect:false
+    })
+    setLoading(false)
+  }
+
+  const handleGoogleLogin = async () => {
+    await signIn("google")
+  }
+
   return (
     <AnimatePresence>
       {open && (
@@ -43,7 +83,9 @@ const AuthModel = ({ open, onClose }: propType) => {
                     Premium Vehicle Booking
                   </p>
                 </div>
-                <button className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition cursor-pointer">
+                <button
+                  onClick={handleGoogleLogin}
+                 className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition cursor-pointer">
                   <Image
                     src={"/google.png"}
                     alt="google"
@@ -72,18 +114,31 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="email"
                             placeholder="Email"
                             className="w-full bg-transparent outline-none text-sm"
+                            onChange={(e)=>setEmail(e.target.value)}
+                            value={email}
                           />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
-                          <Mail size={18} className="text-gray-500" />
+                          <Key size={18} className="text-gray-500" />
                           <input
-                            type="password"
+                            type={`${!hidePassword ? "password" : "text"}`}
                             placeholder="Password"
                             className="w-full bg-transparent outline-none text-sm"
+                            onChange={(e)=>setPassword(e.target.value)}
+                            value={password}
                           />
+                          {
+                            !hidePassword
+                            ?
+                            <IoMdEye size={18} onClick={()=>setHidePassord(true)} className="cursor-pointer" />
+                            :
+                            <IoMdEyeOff size={18} onClick={()=>setHidePassord(false)} className="cursor-pointer"/>
+                          }
                         </div>
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer">
-                          Login
+                        <button disabled={loading}
+                        onClick={handleLogin}
+                        className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center">
+                          {!loading ? "Login" : <Loader size={18}  className="animate-spin"/>}
                         </button>
                       </div>
                       <p className="mt-6 text-center text-sm text-gray-500">
@@ -111,6 +166,8 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="text"
                             placeholder="Full Name"
                             className="w-full bg-transparent outline-none text-sm"
+                            onChange={(e)=>setName(e.target.value)}
+                            value={name}
                           />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
@@ -119,18 +176,33 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="email"
                             placeholder="Email"
                             className="w-full bg-transparent outline-none text-sm"
+                            onChange={(e)=>setEmail(e.target.value)}
+                            value={email}
                           />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
-                          <Mail size={18} className="text-gray-500" />
+                          <Key size={18} className="text-gray-500" />
                           <input
-                            type="password"
+                            type={`${!hidePassword ? "password" : "text"}`}
                             placeholder="Password"
                             className="w-full bg-transparent outline-none text-sm"
+                            onChange={(e)=>setPassword(e.target.value)}
+                            value={password}
                           />
+                          {
+                            !hidePassword
+                            ?
+                            <IoMdEye size={18} onClick={()=>setHidePassord(true)} className="cursor-pointer" />
+                            :
+                            <IoMdEyeOff size={18} onClick={()=>setHidePassord(false)} className="cursor-pointer"/>
+                          }
                         </div>
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer">
-                          Sign Up
+                        {err && <p className="text-red-500">*{err}</p> }
+                        <button 
+                        onClick={handleSignUp}
+                        disabled={loading}
+                        className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center">
+                          {!loading ? "Sign Up" : <Loader size={18}  className="animate-spin"/>}
                         </button>
                       </div>
                       <p className="mt-6 text-center text-sm text-gray-500">

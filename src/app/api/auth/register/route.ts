@@ -11,7 +11,7 @@ export async function POST(req:NextRequest) {
     if(user){
       return NextResponse.json(
         {message:"user already exits."},
-        {status:200}
+        {status:400}
       )
     }
 
