@@ -15,41 +15,86 @@ type propType = {
 type stepType = "login" | "signup" | "otp";
 const AuthModel = ({ open, onClose }: propType) => {
   const [step, setStep] = useState<stepType>("login");
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [hidePassword, setHidePassord] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("")
-  const {data}=useSession()
-  console.log(data)
+  const [err, setErr] = useState("");
+  const { data } = useSession();
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [enableOtpButton, setEnableOtpButton] = useState(false);
 
-  const handleSignUp = async ()=>{
+  const handleSignUp = async () => {
     setLoading(true);
     try {
-      const {data} = await axios.post("/api/auth/register",{
-        name, email, password
-      })
+      const { data } = await axios.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      setErr("")
+      setStep("otp");
       console.log(data)
-      setLoading(false)
-    } catch (error:any) {
-      console.log(error)
-      setLoading(false)
-      setErr(error.response.data.message ?? "something went wrong")
+      setLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      setErr(error.response.data.message ?? "something went wrong");
     }
-  }
+  };
+
+  const handleVerifyOtp = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post("/api/auth/verify-email", {
+        email,
+        otp: otp.join("")
+      });
+      setOtp(["", "", "", "", "", ""])
+      setErr("")
+      setStep("login");
+      console.log(data)
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      setErr(error.response.data.message ?? "something went wrong");
+    }
+  };
 
   const handleLogin = async () => {
-    setLoading(true)
+    setLoading(true);
     const response = await signIn("credentials", {
-      email, password, redirect:false
-    })
-    setLoading(false)
-  }
+      email,
+      password,
+      redirect: false,
+    });
+    setLoading(false);
+  };
 
   const handleGoogleLogin = async () => {
-    await signIn("google")
-  }
+    await signIn("google");
+  };
+
+  const handleChangeOtp = (index: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return;
+
+    const updated = [...otp];
+    updated[index] = value;
+    setOtp(updated);
+
+    if (value && index < otp.length - 1) {
+      document.getElementById(`otp-${index + 1}`)?.focus();
+    }
+
+    setEnableOtpButton(updated.every((digit) => digit !== ""));
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>, ) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -58,7 +103,7 @@ const AuthModel = ({ open, onClose }: propType) => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{opacity:0}}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-md"
           >
             <motion.div
@@ -85,7 +130,8 @@ const AuthModel = ({ open, onClose }: propType) => {
                 </div>
                 <button
                   onClick={handleGoogleLogin}
-                 className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition cursor-pointer">
+                  className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition cursor-pointer"
+                >
                   <Image
                     src={"/google.png"}
                     alt="google"
@@ -114,7 +160,7 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="email"
                             placeholder="Email"
                             className="w-full bg-transparent outline-none text-sm"
-                            onChange={(e)=>setEmail(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                             value={email}
                           />
                         </div>
@@ -124,21 +170,33 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type={`${!hidePassword ? "password" : "text"}`}
                             placeholder="Password"
                             className="w-full bg-transparent outline-none text-sm"
-                            onChange={(e)=>setPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)}
                             value={password}
                           />
-                          {
-                            !hidePassword
-                            ?
-                            <IoMdEye size={18} onClick={()=>setHidePassord(true)} className="cursor-pointer" />
-                            :
-                            <IoMdEyeOff size={18} onClick={()=>setHidePassord(false)} className="cursor-pointer"/>
-                          }
+                          {!hidePassword ? (
+                            <IoMdEye
+                              size={18}
+                              onClick={() => setHidePassord(true)}
+                              className="cursor-pointer"
+                            />
+                          ) : (
+                            <IoMdEyeOff
+                              size={18}
+                              onClick={() => setHidePassord(false)}
+                              className="cursor-pointer"
+                            />
+                          )}
                         </div>
-                        <button disabled={loading}
-                        onClick={handleLogin}
-                        className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center">
-                          {!loading ? "Login" : <Loader size={18}  className="animate-spin"/>}
+                        <button
+                          disabled={loading}
+                          onClick={handleLogin}
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center"
+                        >
+                          {!loading ? (
+                            "Login"
+                          ) : (
+                            <Loader size={18} className="animate-spin" />
+                          )}
                         </button>
                       </div>
                       <p className="mt-6 text-center text-sm text-gray-500">
@@ -166,7 +224,7 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="text"
                             placeholder="Full Name"
                             className="w-full bg-transparent outline-none text-sm"
-                            onChange={(e)=>setName(e.target.value)}
+                            onChange={(e) => setName(e.target.value)}
                             value={name}
                           />
                         </div>
@@ -176,7 +234,7 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type="email"
                             placeholder="Email"
                             className="w-full bg-transparent outline-none text-sm"
-                            onChange={(e)=>setEmail(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                             value={email}
                           />
                         </div>
@@ -186,23 +244,34 @@ const AuthModel = ({ open, onClose }: propType) => {
                             type={`${!hidePassword ? "password" : "text"}`}
                             placeholder="Password"
                             className="w-full bg-transparent outline-none text-sm"
-                            onChange={(e)=>setPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)}
                             value={password}
                           />
-                          {
-                            !hidePassword
-                            ?
-                            <IoMdEye size={18} onClick={()=>setHidePassord(true)} className="cursor-pointer" />
-                            :
-                            <IoMdEyeOff size={18} onClick={()=>setHidePassord(false)} className="cursor-pointer"/>
-                          }
+                          {!hidePassword ? (
+                            <IoMdEye
+                              size={18}
+                              onClick={() => setHidePassord(true)}
+                              className="cursor-pointer"
+                            />
+                          ) : (
+                            <IoMdEyeOff
+                              size={18}
+                              onClick={() => setHidePassord(false)}
+                              className="cursor-pointer"
+                            />
+                          )}
                         </div>
-                        {err && <p className="text-red-500">*{err}</p> }
-                        <button 
-                        onClick={handleSignUp}
-                        disabled={loading}
-                        className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center">
-                          {!loading ? "Sign Up" : <Loader size={18}  className="animate-spin"/>}
+                        {err && <p className="text-red-500">*{err}</p>}
+                        <button
+                          onClick={handleSignUp}
+                          disabled={loading}
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-300 hover:text-black transition cursor-pointer flex items-center justify-center"
+                        >
+                          {!loading ? (
+                            "Send OTP"
+                          ) : (
+                            <Loader size={18} className="animate-spin" />
+                          )}
                         </button>
                       </div>
                       <p className="mt-6 text-center text-sm text-gray-500">
@@ -214,6 +283,42 @@ const AuthModel = ({ open, onClose }: propType) => {
                           Login
                         </div>
                       </p>
+                    </motion.div>
+                  )}
+
+                  {step == "otp" && (
+                    <motion.div
+                      key="otp"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                    >
+                      <h2 className="text-xl font-semibold">Verify Email</h2>
+                      <div className="mt-6 flex justify-between gap-2">
+                        {otp.map((digit, i) => (
+                          <input
+                            key={i}
+                            id={`otp-${i}`}
+                            value={digit}
+                            maxLength={1}
+                            className="w-10 h-12 sm:w-12 text-center text-lg font-semibold rounded-xl bg-white border border-black/20 outline-none"
+                            onChange={(e) => handleChangeOtp(i, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(i, e)}
+                          />
+                        ))}
+                      </div>
+                      {err && <p className="text-red-500">*{err}</p>}
+                      <button
+                      onClick={handleVerifyOtp}
+                        disabled={loading}
+                        className={`mt-6 w-full h-11 rounded-xl  font-semibold  ${enableOtpButton ? "bg-black text-white" : "bg-gray-300 text-black"} transition cursor-pointer flex items-center justify-center`}
+                      >
+                        {!loading ? (
+                          "Verify & Create Account"
+                        ) : (
+                          <Loader size={18} className="animate-spin" />
+                        )}
+                      </button>
                     </motion.div>
                   )}
                 </div>
