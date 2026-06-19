@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AuthModel from "./AuthModel";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -20,7 +20,7 @@ const Nav = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { userData } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
-
+  const router=useRouter()
   const handleLogOut = async () => {
     await signOut({ redirect: false });
     dispatch(setUserData(null));
@@ -96,7 +96,9 @@ const Nav = () => {
                             {userData.role}
                           </p>
                           {userData.role != "partner" && (
-                            <div className="w-full flex items-center pag-3 py-3 hover:bg-gray-100 rounded-xl">
+                            <div 
+                            onClick={()=>router.push("/partner/onboarding/vehicle")}
+                            className="w-full flex items-center pag-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer">
                               <div className="flex -space-x-2">
                                 <div className="w-6 h-6 rounded-full bg-black text-white flex items-center">
                                   <Bike size={16} />
@@ -114,7 +116,7 @@ const Nav = () => {
                           )}
                           <button
                             onClick={handleLogOut}
-                            className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+                            className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2 cursor-pointer"
                           >
                             <LogOut size={16} /> Logout
                           </button>
@@ -217,7 +219,9 @@ const Nav = () => {
                   {userData.role}
                 </p>
                 {userData.role != "partner" && (
-                  <div className="w-full flex items-center pag-3 py-3 hover:bg-gray-100 rounded-xl">
+                  <div 
+                  onClick={()=>router.push("/partner/onboarding/vehicle")}
+                  className="w-full flex items-center pag-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer">
                     <div className="flex -space-x-2">
                       <div className="w-6 h-6 rounded-full bg-black text-white flex items-center">
                         <Bike size={16} />
@@ -235,7 +239,7 @@ const Nav = () => {
                 )}
                 <button
                   onClick={handleLogOut}
-                  className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+                  className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2 cursor-pointer"
                 >
                   <LogOut size={16} /> Logout
                 </button>
