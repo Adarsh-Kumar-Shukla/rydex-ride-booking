@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 interface IPartnerDocs {
   owner: mongoose.Types.ObjectId;
-  aaddharUrl: string;
+  aadharUrl: string;
   licenseUrl: string;
   rcUrl: string;
   status: "approved" | "pending" | "rejected";
@@ -24,7 +24,7 @@ const partnerDocsSchema = new mongoose.Schema<IPartnerDocs>(
       default: "pending",
     },
     rejectionReason: String,
-    aaddharUrl: String,
+    aadharUrl: String,
     licenseUrl: String,
     rcUrl: String,
   },
@@ -32,5 +32,5 @@ const partnerDocsSchema = new mongoose.Schema<IPartnerDocs>(
 );
 
 const PartnersDocs =
-  mongoose.models.Vehicle || mongoose.model("PartnersDocs", partnerDocsSchema);
+  mongoose.models.PartnersDocs || mongoose.model("PartnersDocs", partnerDocsSchema);
 export default PartnersDocs;

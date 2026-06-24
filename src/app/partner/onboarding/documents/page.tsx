@@ -1,11 +1,52 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, FileCheck, UploadCloud } from 'lucide-react'
+import { ArrowLeft, FileCheck, Loader, UploadCloud } from 'lucide-react'
+import axios from 'axios'
+
+type docsType="aadhar" | "license" | "rc"
 
 const page = () => {
   const router=useRouter()
+  const [docs, setDocs] = useState<Record<docsType, File | null>>({
+    aadhar:null,
+    license:null,
+    rc:null
+  })
+
+  const [loading, setLoading]=useState(false)
+  const [error, setError]=useState("")
+
+  const handleDocs=async ()=>{
+    setError("")
+    try {
+      setLoading(true)
+      const formdata=new FormData()
+      if(!docs.aadhar || !docs.license || !docs.rc){
+        setError("all Documents are required!")
+        setLoading(false)
+        return null
+      }
+      formdata.append("aadhar", docs.aadhar)
+      formdata.append("license", docs.license)
+      formdata.append("rc", docs.rc)
+      const {data}=await axios.post("/api/partner/onboarding/documents", formdata)
+      console.log(data)
+      setLoading(false)
+    } catch (error:any) {
+      console.log(error)
+      setLoading(false)
+      setError(error?.response?.data?.message ?? "something went wrong")
+    }
+  }
+
+  const handleImage=(doc:docsType, file:File | null)=>{
+    if(!file){
+      return
+    }
+    setDocs((prev)=>({...prev, [doc]:file}))
+  }
   return (
     <div className='min-h-screen bg-white flex items-center justify-center px-4'>
       <motion.div
@@ -39,6 +80,7 @@ const page = () => {
               <span className='text-xs'>Uplaod</span>
               <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
             </div>
+            <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("aadhar", e.target?.files?.[0] || null)} />
           </motion.label>
 
           <motion.label
@@ -53,6 +95,7 @@ const page = () => {
               <span className='text-xs'>Uplaod</span>
               <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
             </div>
+            <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("license", e.target?.files?.[0] || null)} />
           </motion.label>
 
           <motion.label
@@ -67,19 +110,25 @@ const page = () => {
               <span className='text-xs'>Uplaod</span>
               <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
             </div>
+            <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("rc", e.target?.files?.[0] || null)} />
           </motion.label>
+
+          
 
         </div>
         <div className='mt-6 flex items-start gap-3 text-xs text-gray-500'>
           <FileCheck size={18} className='mt-0.5'/>
           <p>Documents are securely stored and manually verified by our team.</p>
         </div>
+        {error && <p className='text-red-500 mt-4'>*{error}</p> }
         <motion.button
         whileHover={{scale:1.02}}
         whileTap={{scale:0.97}}
+        disabled={loading}
+        onClick={handleDocs}
         className='mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition'
         >
-          Continue
+          {loading ? <Loader size={18} className="text-white animate-spin" /> : "Continue"}
         </motion.button>
       </motion.div>
     </div>

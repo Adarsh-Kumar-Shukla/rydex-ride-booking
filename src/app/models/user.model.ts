@@ -8,6 +8,8 @@ export interface IUser extends Document{
   isEmailVerified?:boolean;
   otp?:string;
   otpExpiresAt?:Date;
+  partnerOnBoardingSteps?:number;
+  mobileNumber?:string,
   createdAt:Date;
   updatedAt:Date
 }
@@ -39,6 +41,15 @@ const userSchema=new mongoose.Schema<IUser>({
   },
   otpExpiresAt:{
     type:Date
+  },
+  partnerOnBoardingSteps:{
+    type:Number,
+    min:0,
+    max:8,
+    default:0
+  },
+  mobileNumber:{
+    type:String
   }
 },{timestamps:true})
 

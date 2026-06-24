@@ -1,8 +1,9 @@
 'use client'
 import React, { useState } from 'react'
 import { motion, scale } from 'motion/react'
-import { ArrowLeft, Bike, Car, Package, Truck } from 'lucide-react'
+import { ArrowLeft, Bike, Car, Loader, Package, Truck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 const VEHICLE=[
   {id:"bikes", label:"Bike", desc:"2 wheeler", icon:Bike},
@@ -17,6 +18,29 @@ const page = () => {
   const [vehicleType, setVehicleType]=useState("")
   const [vehicleNumber, setVehicleNumber]=useState("")
   const [vehicleModel, setVehicleModel]=useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handlevehicle=async()=>{
+    setError("")
+    try {
+      setLoading(true)
+      const data = await axios.post("/api/partner/onboarding/vehicle",
+        {
+          type:vehicleType,
+          number:vehicleNumber,
+          vehicleModel:vehicleModel
+        }
+      )
+      setLoading(false)
+      console.log(data)
+    } catch (error:any) {
+      setError(error?.response?.data?.message ?? "something went wrong")
+      console.log(error)
+      setLoading(false)
+    }
+  }
+
   return (
     <div className='min-h-screen bg-white flex items-center justify-center px-4'>
       <motion.div
@@ -81,7 +105,7 @@ const page = () => {
             className='mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-none focus:border-black transition' 
             placeholder='UP78FG2026'
             value={vehicleNumber}
-            onChange={(e)=>setVehicleNumber(e.target.value)}
+            onChange={(e)=>setVehicleNumber(e.target.value.toUpperCase())}
              />
           </div>
           <div>
@@ -95,12 +119,15 @@ const page = () => {
             onChange={(e)=>setVehicleModel(e.target.value)}
              />
           </div>
+          {error && <p className='text-red-500 mt-4'>*{error}</p> }
           <motion.button
+          onClick={handlevehicle}
           whileTap={{scale: 0.97}}
           whileHover={{scale: 1.02}}
+          disabled={loading}
           className='mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition'
           >
-            Continue
+            {loading ? <Loader size={18} className="text-white animate-spin" /> : "Continue"}
           </motion.button>
         </div>
       </motion.div>
