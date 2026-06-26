@@ -68,8 +68,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if(user){
           ((token.name = user.name),
           (token.id = user.id),
-          (token.email = user.email),
-          (token.role = user.role));
+          (token.email = user.email))
+        }
+
+        if(token.email){
+          await connectDb();
+        }
+
+        const dbUser = await User.findOne({
+          email: token.email
+        })
+
+        if(dbUser){
+          token.role = dbUser.role
         }
 
       return token;

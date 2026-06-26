@@ -74,7 +74,10 @@ export async function GET(req: NextRequest) {
 
     if(partnerBank){
       return Response.json(
-        partnerBank,
+        {
+          partnerBank,
+          mobileNumber:user.mobileNumber 
+        },
         {status:201}
       )
     }else{

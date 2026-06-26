@@ -1,12 +1,12 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion, scale } from 'motion/react'
 import { ArrowLeft, Bike, Car, Loader, Package, Truck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
 const VEHICLE=[
-  {id:"bikes", label:"Bike", desc:"2 wheeler", icon:Bike},
+  {id:"bike", label:"Bike", desc:"2 wheeler", icon:Bike},
   {id:"auto", label:"Auto", desc:"3 wheeler ride", icon:Car},
   {id:"car", label:"Car", desc:"4 wheeler ride", icon:Car},
   {id:"loading", label:"Loading", desc:"Small goods", icon:Package},
@@ -40,6 +40,20 @@ const page = () => {
       setLoading(false)
     }
   }
+
+  useEffect(()=>{
+    const handleGetVehicle=async()=>{
+    try {
+      const {data} = await axios.get("/api/partner/onboarding/vehicle")
+      setVehicleType(data.type)
+      setVehicleNumber(data.number)
+      setVehicleModel(data.vehicleModel)
+    } catch (error:any) {
+      console.log(error)
+    }
+  }
+  handleGetVehicle()
+  },[])
 
   return (
     <div className='min-h-screen bg-white flex items-center justify-center px-4'>

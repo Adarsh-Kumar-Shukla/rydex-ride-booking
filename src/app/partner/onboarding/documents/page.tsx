@@ -47,6 +47,9 @@ const page = () => {
     }
     setDocs((prev)=>({...prev, [doc]:file}))
   }
+
+  const isCompleted=docs.aadhar && docs.license && docs.rc
+
   return (
     <div className='min-h-screen bg-white flex items-center justify-center px-4'>
       <motion.div
@@ -76,10 +79,21 @@ const page = () => {
               <p className='text-sm font-semibold'>Aadhaar / ID Proof</p>
               <p className='text-xs text-gray-500'>Government issued ID</p>
             </div>
-            <div>
-              <span className='text-xs'>Uplaod</span>
-              <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
-            </div>
+            
+              {
+                docs.aadhar 
+                ? <div>
+                <div className='text-green-600 font-medium'>Uplaoded</div>
+                <div className='flex'>
+                  <p className='text-xs text-gray-700 '>{docs.aadhar.name.slice(0,13)}</p>
+                </div>
+              </div>
+                :
+                <div> 
+                  <span className='text-xs'>Uplaod</span><div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
+                </div>
+              }
+              
             <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("aadhar", e.target?.files?.[0] || null)} />
           </motion.label>
 
@@ -91,10 +105,18 @@ const page = () => {
               <p className='text-sm font-semibold'>Driving License</p>
               <p className='text-xs text-gray-500'>Valid Driving License</p>
             </div>
-            <div>
-              <span className='text-xs'>Uplaod</span>
-              <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
-            </div>
+            {
+              docs.license 
+              ? <div>
+                <div className='text-green-600 font-medium'>Uplaoded</div>
+                <div className='flex'>
+                  <p className='text-xs text-gray-700 '>{docs.license.name.slice(0,13)}</p>
+                </div>
+              </div>
+              : <div> 
+                  <span className='text-xs'>Uplaod</span><div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
+                </div>
+            }
             <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("license", e.target?.files?.[0] || null)} />
           </motion.label>
 
@@ -106,10 +128,19 @@ const page = () => {
               <p className='text-sm font-semibold'>Vehicle RC</p>
               <p className='text-xs text-gray-500'>Registration Certificate</p>
             </div>
-            <div>
-              <span className='text-xs'>Uplaod</span>
-              <div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
-            </div>
+            {
+              docs.rc 
+              ? <div>
+                <div className='text-green-600 font-medium'>Uplaoded</div>
+                <div className='flex'>
+                  <p className='text-xs text-gray-700 '>{docs.rc.name.slice(0,13)}</p>
+                </div>
+              </div>
+              :
+              <div> 
+                <span className='text-xs'>Uplaod</span><div className='w-10 h-10 rounded-full bg-black text-white flex items-center justify-center'><UploadCloud size={18}/></div>
+              </div>
+            }
             <input type='file' accept='image/*, .pdf' className='hidden' onChange={(e)=>handleImage("rc", e.target?.files?.[0] || null)} />
           </motion.label>
 
@@ -124,7 +155,7 @@ const page = () => {
         <motion.button
         whileHover={{scale:1.02}}
         whileTap={{scale:0.97}}
-        disabled={loading}
+        disabled={!isCompleted || loading}
         onClick={handleDocs}
         className='mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition'
         >

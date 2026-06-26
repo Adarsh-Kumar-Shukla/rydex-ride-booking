@@ -43,13 +43,7 @@ export async function POST(req: Request) {
     }
 
     const vehicleNumber = number.toUpperCase();
-    const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber });
-    if (duplicateVehicle) {
-      return Response.json(
-        { message: "Vehicle already registered" },
-        { status: 400 },
-      );
-    }
+    
     let vehicle = await Vehicle.findOne({ owner: user._id });
     if (vehicle) {
       (
@@ -60,13 +54,19 @@ export async function POST(req: Request) {
       await vehicle.save();
       return Response.json(vehicle, { status: 200 });
     }
+    const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber });
+    if (duplicateVehicle) {
+      return Response.json(
+        { message: "Vehicle already registered" },
+        { status: 400 },
+      );
+    }
     vehicle = await Vehicle.create({
       owner:user._id,
       type,
       number: vehicleNumber,
       vehicleModel,
     });
-
     if (user.partnerOnBoardingSteps < 1){
       user.partnerOnBoardingSteps = 1
     }
@@ -75,8 +75,13 @@ export async function POST(req: Request) {
 
     return Response.json(vehicle, { status: 201 });
   } catch (error) {
+  console.error("VEHICLE CREATE ERROR:");
+  console.error(error);
+
   return Response.json(
-    {message:`post vehicle error ${error}`}, { status: 201 });
+    { message: String(error) },
+    { status: 500 }
+  )
 }
 }
 
@@ -94,8 +99,7 @@ export async function GET(req: NextRequest){
       return Response.json({ message: "user not found" }, { status: 400 });
     }
 
-    let vehicle = await Vehicle.findOne({ owner: session.user.id });
-
+    let vehicle = await Vehicle.findOne({ owner: user._id });
     if(vehicle){
       return Response.json(vehicle, { status: 201 });
     }else{

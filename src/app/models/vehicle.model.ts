@@ -44,7 +44,7 @@ const vehicleSchema=new mongoose.Schema<IVehicle>(
     waitingCharge:Number,
     status:{
       type:String,
-      emun:["approved" , "pending" , "rejected"],
+      enum:["approved" , "pending" , "rejected"],
       default:"pending"
     },
     rejectionReason:String,

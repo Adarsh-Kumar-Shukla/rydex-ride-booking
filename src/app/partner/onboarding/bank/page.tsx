@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -49,7 +49,22 @@ const page = () => {
     }
   }
 
-  
+  useEffect(()=>{
+    const handleGetBank= async()=>{
+    try {
+      const {data}=await axios.get("/api/partner/onboarding/bank")
+      setAccountHolder(data.partnerBank.accountHolder)
+      setAccountNumber(data.partnerBank.accountNumber)
+      setIfsc(data.partnerBank.ifsc)
+      setUpi(data.partnerBank.upi)
+      setMobileNumber(data.mobileNumber)
+      console.log(data)
+    } catch (error:any) {
+      console.log(error)
+    }
+  }
+  handleGetBank()
+  },[])
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
