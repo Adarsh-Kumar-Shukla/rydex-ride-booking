@@ -5,21 +5,31 @@ import Nav from "@/components/Nav";
 import PartnerDashboard from "@/components/PartnerDashboard";
 import PublicHome from "@/components/PublicHome";
 import Image from "next/image";
+import User from "./models/user.model";
+import connectDb from "@/lib/db";
 
 export default async function Home() {
-  const session =await auth()
+  const session = await auth();
+  await connectDb();
+  const user = await User.findOne({ email: session?.user?.email });
+
   return (
     <div className="w-full min-h-screen bg-white">
-      <Nav/>
-      {
-        session?.user?.role=="partner" ? <PartnerDashboard/> :
-        (
-          session?.user?.role=="admin" ? <AdminDashboard/> :
-          <PublicHome/>
-        )
-        }
-      
-      <Footer/>
+      {user?.role == "partner" ? (
+        <>
+          <Nav />
+          <PartnerDashboard />
+        </>
+      ) : user?.role == "admin" ? (
+        <AdminDashboard />
+      ) : (
+        <>
+          <Nav />
+          <PublicHome />
+        </>
+      )}
+
+      <Footer />
     </div>
   );
 }
