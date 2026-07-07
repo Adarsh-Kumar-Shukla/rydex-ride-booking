@@ -60,7 +60,7 @@ const page = () => {
   const handleReject=async ()=>{
     setRejectLoading(true)
     try {
-      const {data}=await axios.post(`/api/admin/reviews/partner/${id}/reject`, rejectionReason)
+      const {data}=await axios.post(`/api/admin/reviews/partner/${id}/reject`, {rejectionReason})
       console.log(data)
       setShowReject(false)
       setRejectLoading(false)
