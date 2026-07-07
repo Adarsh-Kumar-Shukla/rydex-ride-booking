@@ -52,6 +52,15 @@ export async function POST(req: Request) {
         (vehicle.vehicleModel = vehicleModel));
       vehicle.status = "pending";
       await vehicle.save();
+      if(user.partnerOnBoardingSteps < 2){
+        user.partnerOnBoardingSteps = 2
+        user.save()
+        user.partnerStatus="pending"
+      }else{
+        user.partnerOnBoardingSteps = 3
+        user.save()
+        user.partnerStatus="pending"
+      }
       return Response.json(vehicle, { status: 200 });
     }
     const duplicateVehicle = await Vehicle.findOne({ number: vehicleNumber });
@@ -71,6 +80,7 @@ export async function POST(req: Request) {
       user.partnerOnBoardingSteps = 1
     }
     user.role="partner"
+    user.partnerStatus="pending"
     await user.save()
 
     return Response.json(vehicle, { status: 201 });
