@@ -30,6 +30,7 @@ const AdminDashboard = () => {
       const {data}=await axios.get("/api/admin/dashboard")
       setStats(data.stats)
       setPartnerReviews(data.pendingPartnerReviews)
+      setVehicleReviews(data.pendingVehicles)
     } catch (error) {
       console.log(error)
     }

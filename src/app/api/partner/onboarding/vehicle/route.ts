@@ -52,14 +52,14 @@ export async function POST(req: Request) {
         (vehicle.vehicleModel = vehicleModel));
       vehicle.status = "pending";
       await vehicle.save();
-      if(user.partnerOnBoardingSteps < 2){
-        user.partnerOnBoardingSteps = 2
-        user.save()
+      if(user.partnerOnBoardingSteps < 1){
+        user.partnerOnBoardingSteps = 1
         user.partnerStatus="pending"
+        user.save()
       }else{
         user.partnerOnBoardingSteps = 3
-        user.save()
         user.partnerStatus="pending"
+        user.save()
       }
       return Response.json(vehicle, { status: 200 });
     }

@@ -34,6 +34,7 @@ const page = () => {
       const {data}=await axios.post("/api/partner/onboarding/documents", formdata)
       console.log(data)
       setLoading(false)
+      router.push("/")
     } catch (error:any) {
       console.log(error)
       setLoading(false)

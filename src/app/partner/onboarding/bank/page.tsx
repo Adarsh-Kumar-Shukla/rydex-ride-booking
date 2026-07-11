@@ -42,6 +42,7 @@ const page = () => {
       )
       console.log(data)
       setLoading(false)
+      router.push("/")
     } catch (error:any) {
       setError(error?.response?.data?.message || "something went wrong")
       setLoading(false)
